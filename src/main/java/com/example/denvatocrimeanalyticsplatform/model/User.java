@@ -1,8 +1,7 @@
 package com.example.denvatocrimeanalyticsplatform.model;
 
-import org.hibernate.annotations.NaturalId;
-
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
@@ -10,45 +9,46 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "username"), @UniqueConstraint(columnNames = "email")})
-public class User extends DateAudit
+public class User
 {
-    //Defining the fields
+    //Defining fields
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @NotBlank
-    @Size(max = 15)
+    @Size(max = 20)
     private String username;
 
-    @NaturalId
     @NotBlank
-    @Size(max = 40)
+    @Email
     private String email;
 
     @NotBlank
-    @Size(max = 100)
+    @Size(max = 120)
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_roles",joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    //Initialize Constructors
+    private boolean isEnabled;
+
+    //Defining Constructors
     public User()
     {
         //Default Constructor
     }
 
-    public User(@NotBlank @Size(max = 15) String username, @NotBlank @Size(max = 40) String email, @NotBlank @Size(max = 100) String password, Set<Role> roles)
+    public User(String username, String email, String password)
     {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.roles = roles;
     }
 
-    //Getters and Setters
+    //Defining Getters/Setters
+
     public long getId() {
         return id;
     }
@@ -89,7 +89,16 @@ public class User extends DateAudit
         this.roles = roles;
     }
 
-    //To String()
+    public boolean isEnabled()
+    {
+        return isEnabled;
+    }
+
+    public void setEnabled(boolean enabled)
+    {
+        isEnabled = enabled;
+    }
+
     @Override
     public String toString()
     {
@@ -99,6 +108,7 @@ public class User extends DateAudit
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", roles=" + roles +
+                ", isEnabled=" + isEnabled +
                 '}';
     }
 }
