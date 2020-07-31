@@ -40,6 +40,16 @@ public class JwtUtils
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
+    public Long getUserIdFromJWT(String token)
+    {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return Long.parseLong(claims.getSubject());
+    }
+
     //Method to generate a new token once one has expired
     public String generateRefreshToken()
     {

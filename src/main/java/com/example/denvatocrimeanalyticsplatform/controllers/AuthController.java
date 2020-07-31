@@ -67,7 +67,7 @@ public class AuthController
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest)
     {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -175,9 +175,19 @@ public class AuthController
                         roles.add(adminRole);
                         break;
                     case "data_officer":
-                        Role modRole = roleRepository.findByName(ERole.ROLE_DATA_OFFICER)
+                        Role dataOfficerRole = roleRepository.findByName(ERole.ROLE_DATA_OFFICER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(modRole);
+                        roles.add(dataOfficerRole);
+                        break;
+                    case "officer":
+                        Role officerRole = roleRepository.findByName(ERole.ROLE_OFFICER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(officerRole);
+                        break;
+                    case "investigator":
+                        Role investigatorRole = roleRepository.findByName(ERole.ROLE_INVESTIGATOR)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(investigatorRole);
                         break;
                     default:
                         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
