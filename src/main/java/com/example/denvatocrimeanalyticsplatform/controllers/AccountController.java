@@ -3,18 +3,17 @@ package com.example.denvatocrimeanalyticsplatform.controllers;
 
 import com.example.denvatocrimeanalyticsplatform.dao.UserRepository;
 
-import com.example.denvatocrimeanalyticsplatform.security.services.UserDetailsImpl;
+import com.example.denvatocrimeanalyticsplatform.payload.response.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/test")
+@RequestMapping("/api/account")
 public class AccountController
 {
     @Autowired
@@ -25,41 +24,48 @@ public class AccountController
         return "Public Content.";
     }
 
-    @GetMapping("/user_dashboard")
-    @PreAuthorize("hasRole('USER') or hasRole('CONTENT_MANAGER') or hasRole('ADMIN')")
-    public String userAccess() {
-        return "User Dashboard.";
-    }
-
-    @GetMapping("/content_manager")
-    @PreAuthorize("hasRole('CONTENT_MANAGER') or hasRole('ADMIN')")
-    public String moderatorAccess() {
-        return "Content Manager Board";
-    }
-
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String adminAccess()
+    @GetMapping("/public_crime_statistics")
+    public ResponseEntity<?> getPublicCrimeStatistics()
     {
-        return "Admin Board.";
+        return ResponseEntity.ok(new MessageResponse("Public Content"));
+    }
+
+    @GetMapping("/user_dashboard")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getUserDashboardAccess()
+    {
+        return ResponseEntity.ok(new MessageResponse("Access to User Dashboard Granted"));
+    }
+
+    @GetMapping("/data_officer_hub")
+    @PreAuthorize("hasRole('DATA_OFFICER') or hasRole('ADMIN')")
+    public ResponseEntity<?> getAccessToDataOfficerHub()
+    {
+        return ResponseEntity.ok(new MessageResponse("Access granted to Data Officer Hub"));
+    }
+
+    @GetMapping("/officer_hub")
+    @PreAuthorize("hasRole('OFFICER') or hasRole('ADMIN')")
+    public ResponseEntity<?> getAccessToOfficerHub()
+    {
+        return ResponseEntity.ok(new MessageResponse("Access granted to Officer Hub"));
+    }
+
+    @GetMapping("/investigator_hub")
+    @PreAuthorize("hasRole('INVESTIGATOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> getAccessToInvestigatorHub()
+    {
+        return ResponseEntity.ok(new MessageResponse("Access granted to Investigator Hub"));
     }
 
     @GetMapping("/admin_hub")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getAdminHub()
+    public ResponseEntity<?> getAccessToAdminHub()
     {
-        return ResponseEntity.ok("Access Granted");
+        return ResponseEntity.ok(new MessageResponse("Access granted to Admin hub"));
     }
 
-    @GetMapping("/user")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getUserProfile(Authentication authentication)
-    {
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-        return ResponseEntity.ok(userDetails);
-    }
-
+    //To get all user accounts
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getUsers()

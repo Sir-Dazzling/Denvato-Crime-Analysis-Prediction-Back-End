@@ -46,7 +46,7 @@ public class FirController
         //Getting Local govt object
         Optional<LocalGovtArea> localGovtArea =  lgaRepository.findByName(ELocalGovtArea.IKEJA);
 
-        //Getting fir as ana object from user post request
+        //Getting fir as an object from user post request
         FIR fir = new FIR(reporter.get(), firRequest.getFirAccused(), firRequest.getEventDate(), firRequest.getTimeOfFir(), localGovtArea.get(), "Lagos", firRequest.getReporterAddress(), firRequest.getAccusedAddress(), firRequest.getReporterFirNarration());
 
         System.out.println(firRequest.getReporterFirNarration());
