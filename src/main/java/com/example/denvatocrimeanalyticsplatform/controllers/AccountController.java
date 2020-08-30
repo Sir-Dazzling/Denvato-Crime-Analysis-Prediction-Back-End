@@ -10,6 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/test")
@@ -42,12 +44,28 @@ public class AccountController
         return "Admin Board.";
     }
 
+    @GetMapping("/admin_hub")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAdminHub()
+    {
+        return ResponseEntity.ok("Access Granted");
+    }
+
     @GetMapping("/user")
-    @PreAuthorize("hasRole('USER') or hasRole('CONTENT_MANAGER') or hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getUserProfile(Authentication authentication)
     {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-       return ResponseEntity.ok(userDetails);
+        return ResponseEntity.ok(userDetails);
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getUsers()
+    {
+        List users = userRepository.findAll();
+
+        return ResponseEntity.ok(users);
     }
 }

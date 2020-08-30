@@ -4,36 +4,26 @@ import com.example.denvatocrimeanalyticsplatform.dao.JwtTokenRefreshRepository;
 import com.example.denvatocrimeanalyticsplatform.dao.RoleRepository;
 import com.example.denvatocrimeanalyticsplatform.dao.UserRepository;
 import com.example.denvatocrimeanalyticsplatform.dao.VerificationTokenRepository;
-import com.example.denvatocrimeanalyticsplatform.exceptions.BadRequestException;
 import com.example.denvatocrimeanalyticsplatform.model.ERole;
-import com.example.denvatocrimeanalyticsplatform.model.JwtRefreshToken;
 import com.example.denvatocrimeanalyticsplatform.model.Role;
 import com.example.denvatocrimeanalyticsplatform.model.User;
 import com.example.denvatocrimeanalyticsplatform.payload.request.LoginRequest;
-import com.example.denvatocrimeanalyticsplatform.payload.request.RefreshTokenRequest;
 import com.example.denvatocrimeanalyticsplatform.payload.request.SignUpRequest;
 import com.example.denvatocrimeanalyticsplatform.payload.response.JwtResponse;
 import com.example.denvatocrimeanalyticsplatform.payload.response.MessageResponse;
 import com.example.denvatocrimeanalyticsplatform.security.jwt.JwtUtils;
-import com.example.denvatocrimeanalyticsplatform.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -61,17 +51,12 @@ public class AuthController
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @Value("${app.jwtExpirationInMs}")
-    private long jwtExpirationInMs;
-
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest)
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest)
     {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         String accessToken = jwtUtils.generateJwtToken(authentication);
 

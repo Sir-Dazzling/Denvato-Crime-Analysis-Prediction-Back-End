@@ -48,7 +48,6 @@ public class User
     }
 
     //Defining Getters/Setters
-
     public long getId() {
         return id;
     }
