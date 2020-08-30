@@ -75,58 +75,7 @@ public class AuthController
 
         String accessToken = jwtUtils.generateJwtToken(authentication);
 
-        String refreshToken = jwtUtils.generateRefreshToken();
-
-        Long expiryTime = 900000L;
-
-        //Saving refresh token to database encoded.
-        saveRefreshToken(userDetails, passwordEncoder.encode(refreshToken));
-
-        String encodedRefreshToken = passwordEncoder.encode(refreshToken);
-
-        String doubleEncodedRefreshToken = passwordEncoder.encode(encodedRefreshToken);
-
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(accessToken,
-                doubleEncodedRefreshToken,
-                expiryTime,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles,
-                userDetails.isUserAccountEnabled()));
-    }
-
-    //Method to refresh token
-    private ResponseEntity<?> getResponseEntity(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(refreshTokenRequest.getUsername(), refreshTokenRequest.getPassword()));
-        return jwtTokenRefreshRepository.findById(refreshTokenRequest.getRefreshToken()).map(jwtRefreshToken -> {
-            String accessToken = jwtUtils.generateJwtToken(authentication);
-            return ResponseEntity.ok(new JwtResponse(accessToken, jwtRefreshToken.getToken(), jwtExpirationInMs));
-        }).orElseThrow(() -> new BadRequestException("Invalid Refresh Token"));
-    }
-
-    //Method to refresh token once user token expires
-    @GetMapping("/refreshToken")
-    public ResponseEntity<?> refreshAccessToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest)
-    {
-        return getResponseEntity(refreshTokenRequest);
-    }
-
-    //Storing encoded user refreshToken to database
-    private void saveRefreshToken(UserDetailsImpl userDetails, String refreshToken)
-    {
-        // Persisting the Refresh Token
-        JwtRefreshToken jwtRefreshToken = new JwtRefreshToken(passwordEncoder.encode(refreshToken));
-        jwtRefreshToken.setUser(userRepository.getOne(userDetails.getId()));
-
-        Instant expirationDateTime = Instant.now().plus(360, ChronoUnit.DAYS);  // Todo Add this in application.properties
-        jwtRefreshToken.setExpirationDateTime(expirationDateTime);
-
-        jwtTokenRefreshRepository.save(jwtRefreshToken);
+        return ResponseEntity.ok(new JwtResponse(accessToken));
     }
 
     //Method to respond to sign up request and create user account
@@ -161,6 +110,7 @@ public class AuthController
         {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            System.out.println(userRole);
             roles.add(userRole);
         }
         else
